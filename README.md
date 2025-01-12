@@ -1,4 +1,4 @@
-SPRINT 1
+# SPRINT 1
 
 # SPRINT 2
 
@@ -123,10 +123,158 @@ La recuperación tardará un momento, y al aparecer el siguiente mensaje de “L
 
 
 
+# SPRINT 3
 
-SPRINT 3
+## 1.Instalación APACHE
+Realizar un “ sudo apt update “ para actualizar los repositorios del equipo
+Instalar apache desde terminal de comandos con “ sudo apt install apache2 “
 
-SPRINT 4
+Comprobar el estado del servicio apache2
+
+Se ve la página por defecto de apache si buscamos nuestra IP (127.0.0.1) en el navegador
+
+Cambiar contenido de la página mediante “ sudo echo “ Texto que se quiere “ > index.html
+
+## 2. Configuraciones globales
+### Ficheros de configuraciones
+Los ficheros de configuración se encuentran en /etc/apache2/
+
+Dentro de este directorio se pueden ver diferentes archivos y directorios que permiten configurar de forma global como de forma específica el propio servidor.
+
+El fichero principal es apache2.conf, y es de donde parten todas las configuraciones y donde se incluyen los ficheros que hacen referencia a sitios configurador.
+
+### Configuración de usuarios y grupos
+Comprobar que los el usuario y grupo en el archivo “ /etc/apache2/apache.conf “, dispone con estas líneas. 
+
+Comprobar que las variables de entorno apuntan al usuario www-data
+
+Mediante “ ps fauxu |grep apache2 “ se puede comprobar que el usuario www-data es quien corre los procesos de apache2
+
+### Ocultación de versiones
+Ocultar la versión puede ayudar a no dar información relativa de posibles vulnerabilidades a nadie, y al mismo tiempo, minimizar opciones de éxito en el ataque.
+
+Antes de realizar cualquier modificación, cualquier persona puede ver que aplicación y versión se usa en la página web.
+
+Por lo tanto, realiza “ sudo nano conf-enabled/security.conf “ para editar el archivo
+
+Modificar para que quede así:
+ServerTokens ProductOnly
+ServerSignature Off
+
+Reiniciamos el servicio de apache para aplicar la configuración
+
+Ahora solo aparece Apache en el parámetro Server
+
+### Exposición mínima de módulos.
+En apache los módulos pueden estar compilados estáticamente o cargados de una forma dinámica.
+Un módulo es una extensión que añade funcionalidad a través de la configuración en apache, concretamente, añadiendo directivas propias del módulo.
+En la configuración por defecto es habitual encontrar módulos activos que no se usan o no interesan, por lo que es recomendable desactivar los que no están en uso. Esto reducirá la carga y la superficie de exposición de un ataque.
+
+Para ver los módulos disponibles, ejecuta “ apache2ctl -M “, para aplicar los cambios, realiza “ sudo systemctl reload apache2 “.
+
+### Creación de virtualhost con tu nombre y apellido.
+Para avanzar trabajo, copiaremos la configuración por defecto de apache ( /etc/apache2/sites-available ), y lo renombraremos con un nombre distintivo para nuestro VirtualHost.
+“ sudo cp 000-default.conf   nombre-default.conf “
+
+Editamos el archivo.
+
+Modificamos el archivo para que quede de la siguiente manera:
+
+Creamos el directorio donde estará la base de nuestro VirtualHost (crear el directorio con el mismo nombre asignado en el archivo de configuración anterior).
+
+Asignar permisos al directorio para poder trabajar y editar en él.
+“ sudo chmod 755 nombre_directorio “
+
+Ahora mismo podemos crear el archivo principal de nuestra página web. 
+Seguimos con crear el archivo index.html y modificamos su contenido para tener algo tal que así (es provisional e puede ser modificado como plazca).
+
+Modificaremos el archivo /etc/hosts para implementar la línea en la IP de localhost (127.0.0.1) el nombre de nuestra página web.
+
+Activaremos la configuración del VirtualHost con “ sudo a2ensite joelbagur-default.conf “
+
+Finalmente, reiniciamos el servicio de apache para implementar la configuración, y poder ver la página desde el navegador.
+
+### Configuración múltiple y de contexto: directiva options
+Esta configuración consiste en restringir a los usuarios el modo índice para los usuarios al momento de buscar una carpeta en una página web.
+
+Crearemos un directorio llamado “ privado “. 
+
+Asignamos permisos para poder trabajar con el.
+
+Crea varios archivos para ver que aparecen en el navegador al buscar la pagina_web/privado.
+
+Modificamos los parámetros de nuestro directorio privado (archivo de configuración del Virtual Host), par que nadie pueda ver un índice del contenido del propio directorio, para ello es indispensable asignar “ -Indexes “.,
+
+
+
+
+## 3.Ficheros .htaccess. ¿Para qué sirven?
+Los ficheros “.htaccess” permiten personalizar la configuración de directivas y parámetros que se definen en el fichero principal de configuración de Apache. Deben colocarse dentro de un directorio donde se pretende que tenga efecto. Estos ficheros están protegidos desde la directiva del fichero principal, dado un 403 Forbidden en caso de acceder directamente a ellos.
+
+## 4.¿Cómo podemos evitar el hotlinking? Compruébalo.
+Inserta una imagen en tu archivo donde se aloja tu página web (localhost). Esta imagen debe estar en el mismo directorio que esta página web, para facilitar el trabajo.
+
+En este momento, si comprobamos la página que realiza hostlinking (la página de Dani está realizando hostlinking a mi imagen), veremos que mi imagen se refleja en su página. 
+
+Para remediar, creamos el archivo .htaccess en el directorio de la página web, en mi caso /var/www/html/joelbagur.com. En el archivo se incluyen las siguientes lineas.
+
+Una vez guardado, actualiza el servicio de apache “ sudo systemctl restart apache “, y al momento de visitar la página que nos realizaba el hostllinking, veremos que nuestra imagen ya no aparece (es interesante borrar la caché, ya que si la página está guardada en ella la imagen nos puede seguir apareciendo)
+
+## 5. Configuración HTTPS mediante OpenSSL. Crea los certificados para que tu virtualHost sea seguro, y obligatoriamente los accesos sean por HTTPS.
+El primer paso es instalar OpneSSL.
+“sudo apt install openssl “
+
+Con el comando “ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout  /etc/ssl/private/apache-selfsigned.key -out “, creamos el certificado para nuestra página web.
+Al momento de crearlo responde a las preguntas pertinentes, estas respuestas se reflejaran en el certificado y son visibles para los usuarios.
+
+En el fichero de configuración de nuestro virtualhost, añade las dos líneas marcadas, estas cumplirán la función de especificar donde se encuentra el certificado.
+También cambia la primera línea del virtual host para que responda al puerto 443 (actualmente 80) para garantizar una conexión segura mediante HTTPS.
+
+Habilita ssl para habilitar el certificado pueda ser visible con “ sudo a2enmod ssl “ y reinicia el servidor apache “ sudo systemctl restart apache2 ”.
+
+Ahora mismo, para acceder a la página se realiza mediante “ https://tupagina “, y al primer momento de acceder nos dirá que no es seguro (realmente es porque nos hemos autocreado el certificado y no es creado por una organización especifica para este proposito).
+
+Finalmente, podemos ver el certificado con la información que rellenamos al crearlo.
+
+## 6. Módulo mod_security. ¿Qué es mod_security?
+ModSecurity es un módulo de seguridad para servidores web, como Apache, Nginx y IIS, que actúa como un firewall de aplicaciones web (WAF). Su función principal es proteger las aplicaciones web de ataques como inyecciones SQL, XSS, y otros riesgos al inspeccionar el tráfico HTTP. Utiliza reglas de seguridad para detectar patrones maliciosos, bloquear amenazas en tiempo real, y generar registros detallados para auditorías y monitoreo. Además, es configurable y permite personalizar reglas para adaptarse a necesidades específicas, mejorando así la protección web y la visibilidad del tráfico.
+
+Para instalar mod_security, ejecuta “ sudo apt install libapache2-mod-security2 “
+
+Habilita con “ sudo a2enmod security2 “ 
+
+## 7. Realiza la descarga de Kali Linux y realiza un ataque DoS mediante Metasploit (Slowloris) y comprueba que efectivamente el servidor está inaccesible.
+Inicia la máquina virtual con Kali (el usuario y contraseña es Kali). Abre la seccion de aplicaciones y abre metasploit-framework.
+
+Al pedir la contraseña ingresaremos Kali (contraseña por defecto de la maquina que tenemos)
+
+Buscaremos el ataque DoS Slowloris mediante “ search slowloris “.
+
+Para acceder a él ejecutaremos “ use 0 “, ya que es el número identificador para este.
+Una vez dentro de él, con el comando “ info 0 “, podemos ver la información que nos proporciona el propio Kali.
+
+Para poder indicar la IP al equipo donde queremos ralizar el ataque, usaremos el comando 
+“ set rhost 192.168.1.66 “ y al ejecutar un “ info “, este nos aparece.
+
+Ejecuta con un “ run “ y el ataque empezará.
+
+A recalcar que con este ataque no causa muchos problemas para mi equipo actual, la única diferencia que se aprecia es que la página web tarda más en cargar, pero es bastante leve.
+
+## 8.Clona e instala las reglas recomendadas OWASP. Habilita mod_security
+Primeramente, instala git “ sudo apt install git “
+Clona el repositorio de OWASP CRS.
+
+Si el directorio no es accesible, asigna permisos para poder entrar en él.
+
+Este es el contenido del directorio al momento de clonar la configuración.
+
+Habilita el módulo mod security (si no se realizo anteriormente)
+
+## 9.Realiza de nuevo el ataque DoS y comprueba que el servidor está accesible.
+Si se realiza otro ataque, se puede comprobar que la página está disponible y asimismo esta ya no tiene el problema de carga lenta como anteriormente.
+
+
+# SPRINT 4
 
 
 
