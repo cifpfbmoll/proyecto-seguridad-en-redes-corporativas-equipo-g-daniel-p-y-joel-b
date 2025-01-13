@@ -1,5 +1,37 @@
 # SPRINT 1
-### que pase la china
+## Instalación de la máquina virtual
+
+Procedimiento de instalación de la máquina virtual Ubuntu Vr22, ya que la versión 24 nos daba demasiados problemas. He omitido los pasos de configuración desde virtual box, como durante el proceso de configuración de inicio de Ubuntu recién instalado, todo está predefinido como estándar, le dejo aquí unas pequeñas capturas de mi máquina ya instalada.
+
+## Auditoría e implementación del Cis_leve2
+
+A continuación nos disponemos a leer  la documentación, el artículo del CIS, resulto interesante pero un poco apabullante la cantidad de terminología. 
+Nos disponemos a leer el manual de la guía de seguridad de Ubuntu.
+
+### 1º Paso
+Leemos la guía, entendemos los conceptos básicos de seguridad, como podemos implementarlos  y la necesidad de utilizar el cliente pro
+
+### 2º Paso
+La instalación del Ubuntu Pro y upgradear nuestra cuenta.
+
+### 3º Paso
+Verificamos que si se nos has actualizado al PRO.
+Podemos ver que no estamos habilitados, por eso utilizamos la siguiente comanda para revertir esto.Nos registramos en Ubuntu y actualizamos  a la versión pro desde la página web.
+
+### 4º Paso
+Habilitamos la guía de seguridad de Ubuntu.
+
+### 5º Paso
+Procedemos a auditar nuestro equipo con el Ubuntu pro activado. Esto nos genera un HTML y un XML, que nos  muestra el nivel de seguridad, donde si cogemos el HTML nos abre una página donde podemos ver que somos muy vulnerables según la auditoría, ya que nuestros defensas son muy bajas o directamente por qué no tenemos los protocolos de seguridad bien implementados.
+
+### 6º Paso
+Desactivamos el cortafuegos por medio de la terminal, pero más adelante los haremos por medio de un tailor XML, pero eso será mas adelante.
+
+### 7º Paso
+Generamos el archivo tailor con la siguiente comanda.En este punto cambiamos algunos valores del archivo a false para poder implementarlos de forma exitosa , sin que nuestra interfaz gráfica sufra, y cumpliendo todos los puntos demandados , como  deshabilitar los cortafuegos también en este xml. Con el archivo ya modificado, procedemos a implementarlo con el siguiente comando
+
+
+
 
 # SPRINT 2
 
