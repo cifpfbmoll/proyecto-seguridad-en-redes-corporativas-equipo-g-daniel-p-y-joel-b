@@ -30,6 +30,63 @@ Desactivamos el cortafuegos por medio de la terminal, pero más adelante los har
 ### 7º Paso
 Generamos el archivo tailor con la siguiente comanda.En este punto cambiamos algunos valores del archivo a false para poder implementarlos de forma exitosa , sin que nuestra interfaz gráfica sufra, y cumpliendo todos los puntos demandados , como  deshabilitar los cortafuegos también en este xml. Con el archivo ya modificado, procedemos a implementarlo con el siguiente comando
 
+# Asegura las configuraciones globales.
+
+## Configuración del arranque GRUB.
+
+No sé a qué se refiere con la configuración del arranque GRUB, no sé si quería que se habilitara desde él inició y que nos salga la pantalla GNU GRUB, lo que yo hice fue lo siguiente
+
+## Establecer una contraseña de arranque.
+
+En este apartado, lo que hice fue seguir la guía del video. Entendía el motivo de esta , ya que es establecer una contraseña de arranque con una ya codificada.
+
+## Establecer permisos fichero de configuración de arranque
+
+Esto fue relativamente sencillo, solo fue poner un sudo nano init-pwd, en la ruta correspondiente, claro está,  luego poner la contraseña encriptada más una estructura indicada en el video.
+
+## Obligar al uso de contraseña en el modo “single user”
+
+Aquí establecí, una nueva contraseña, claramente más complicada que la anterior que tenía. Esto de las contraseñas y el grado de seguridad que nos pide ,creo que es gracias ha haber implantado los protocolos de seguridad.
+
+
+
+# Configuración  de usuarios y grupos
+
+Configuración de usuarios y grupos. Crea un usuario administrador con la inicial de tu nombre y apellido, por ejemplo, en mi caso “rgion”, y añade este al grupo sudoers.
+
+Como le comente, cree el usuario, puedo entrar con el , pero no tome las capturas pertinentes, como lo de meterle en el grupo de sudos, pero de esta manera te puedo enseñar , que ambos usuarios, a partir de la codificación, pertenecen al grupo de Sudores.
+
+En la siguiente captura, le puedo demostrar que puedo iniciar sesión con este usuario,
+
+# Normas sobre las actualizaciones de software.
+
+En este apartado veremos como podemos limitar las actualizaciones del software en la máquina virtual, solo permitiendo los paquetes certificados como seguros por los proveedores centrales y que cumplan las normas.  Para ello con el root, nos disponemos a viajar hasta la ruta que tenga el documento sources.list, esto contiene enlaces que hacen posible la actualización del sistema.
+
+Dentro de este documento podemos encontrar muchos enlaces, unos son restrictivos, otros son más permisivos y otros directamente son enlaces de paquetes de dudosa procedencia. Lo que haremos será deshabilitar todos menos los restrictivos.
+
+# Auditoria Final
+
+Después de haber completado cada una de las tareas pedidas en este proyecto, con la ayuda del manual y los videos de seguridad, finalmente podemos hacer otra prueba de auditoria para poder comprobar el nivel de seguridad
+
+# Volvemos a auditar
+
+Como puede ver, ha subido significativamente nuestro valor de seguridad en nuestra máquina virtual, de manera que hemos realizado la implementación de los cis_level2 de manera exitosa, claramente , todavía se puede mejorar, aunque sea un pequeño margen, pero sí se puede mejorar. 
+Esta auditoria lo hice después de implementar el cis_level2, sin establecer protocolo grub ni restricción de actualizaciones en el software.
+
+Y esta es la auditoria que he realizado al final del todo, con todos los demás puntos aplicados, no llego a entender por qué me ha disminuido el nivel de seguridad si técnicamente los demás puntos daban más seguridad al sistema, es probable que haya cometido un error de configuración que ha hecho que disminuyera el nivel de seguridad. 
+
+# Conclusiones Finales
+
+El proyecto , en gran medida, ha sido interesante, además de informativo, no tenía idea de la vulnerabilidad que pueden sufrir nuestro equipo, sobre todo Ubuntu.
+
+La parte más pesada ha sido leer los artículos, porque hay conceptos , que todavía no termine de comprender , pero sí otros que me ayudaron entender un poco más la importancia de esta práctica.
+
+El sistema Ubuntu, nos da unas herramientas de seguridad muy buenas, me sorprendió gratamente todas las medidas posibles que se pueden implementar para un solo equipo, también la protección de los usuarios.
+
+También ha habido partes negativas, muchas veces no tenía ni idea de como proseguir con algunos pasos, por suerte tenía a compañeros que me ayudaron en todo este proceso, también ayudo tener instantáneas de la máquina, ya que a la hora de aplicar el taylor, si no tocabas los valores correspondientes a determinadas líneas, a la hora de ejecutarla, podías borrar tu interfaz gráfica, o directamente cargarte tu máquina virtual.
+
+Me gustaría haber hecho, la práctica, con más capturas de pantalla y más explicaciones, pero he dado tantas vueltas, que me ha sido imposible escribir y poner todo lo que quería, por todas las vueltas que daba. En la próxima práctica intentaré ser más organizado a la hora de documentarlo, 
+
 
 
 
