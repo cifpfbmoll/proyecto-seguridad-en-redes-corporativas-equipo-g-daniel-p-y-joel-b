@@ -363,6 +363,145 @@ Habilita el módulo mod security (si no se realizo anteriormente)
 ## 9.Realiza de nuevo el ataque DoS y comprueba que el servidor está accesible.
 Si se realiza otro ataque, se puede comprobar que la página está disponible y asimismo esta ya no tiene el problema de carga lenta como anteriormente.
 
+# SPRINT 6
+## Instalación y Configuración de pfSense
+En esta ocasión se nos solicita que se nos añada tres tarjetas de red a la máquina virtual de Pfsense, por lo cual nos disponemos a añadirlas
+
+
+
+Como puede ver más abajo , ya con la máquina virtual completamente instalada (también se puede bajar una imagen ya configurada para saltarse el proceso de instalación y configuración). Hemos configurado el dhcp  en la WAN
+
+### Wan (adaptador puente)
+Desde un equipo externo , podemos entrar a pfSense a través de la ip de la WAN
+
+Usuario: admin / Contraseña: pfsense
+
+### Lan DMZ (Red interna 10.0.3.0/24) 
+Este paso es relativamente sencillo , en este apartado tendremos que configurar manualmente la IP, y otros parámetros.
+
+
+Como puedes ver, la he liado con la ip, solo he tenido que utilizar la opción 2  y volver a reasignarle la IP como toca, recordar, que este no tiene opción de DHCP, ya que este va orientado al servidor
+
+### Lan Empleados (Red interna 10.0.2.0/24).
+Como pudo ver en las anteriores imágenes,  solo nos salía dos tarjetas de red, por lo cual tendremos que habilitar el tercer puerto siguiendo las siguientes opciones
+Primero le damos a la opción 1
+
+Luego darle luego a no a habilitar VLAN
+
+En la siguiente imagen se puede ver como he configurado esta parte
+
+Después de estos cambios, necesitamos asignarle la red estática que le corresponde, ponemos la opción 2
+
+el resto de opciones que saldrán son sencillas de responder, solo tiene que negar todas las que te ofrezcan un DHCP, u opciones de la IPv6.  Solo le permitiremos la opción de dar DCHP a otros.
+
+
+### Configurar empleados
+Configura el equipo del empleado adjudicando a su tarjeta de red Lan Empleados (debes simular que este equipo es un Windows).
+Como hemos visto más arriba, puede ser que exista un problema  a la hora de asignar las ip de forma correcta, por lo cual he realizado estos cambios
+
+Bien, utilizamos el Windows, con una configuración de red de LAN empleado. Gracias a las configuraciones realizadas en pfSense, nos dará una ip automática en el rango que le dimos en la configuración. En nuestro caso me dio la 10.0.2.2
+Ahora probamos a acceder al pfSense desde la ip 10.0.2.1
+
+
+
+Aproveche para cambiarle el nombre a la interface em2 y le puse la de DMZ
+
+### Configuración del DMZ
+Configura el servidor adjudicando a su tarjeta de red Lan DMZ, y estableciendo una ip fija al servidor.
+Ahora le toca a nuestro servidor, qué será nuestro Ubuntu de seguridad. Le metemos una ip de forma manual 
+
+Como en este apartado DNZ no tiene reglas que bloquen o permitan  el acceso a la red, directamente no podremos conectarnos a esta. Por lo cual copiaremos esta regla de la LAN empleados  para poder  conectarnos a internet 
+
+Esta captura, se puede ver el apartado DMZ, en el cual le he añadido una regla más (que se verá más adelante), en principio, solo tendría que estar la primera
+
+Con esto ya establecido podemos establecer la conexión con pfSense
+
+## Preguntas antes de configurar las reglas
+Antes de comenzar a configurar reglas, haremos una serie de comprobaciones, con el objetivo de conocer la situación actual, por tanto, responde a las siguientes preguntas, justificando la respuesta:
+¿El servidor web y SSH es accesible desde el exterior?
+En principio no , ya que el servidor  no cuenta con estas configuraciones habilitadas para estos servicios. Una medida de seguridad 
+¿El servidor tiene acceso a internet?
+Técnicamente, no  , ya que no se pudo realizar un ping a Google, no se puedo  establecer una comunicación. No se puede acceder a internet
+¿El equipo de los empleados tiene internet?
+Técnicamente, sí que dispone de internet, en mi caso si que se ha generado  las reglas que permitían él acceso de a la conexión a internet. 
+¿El servidor web es alcanzable desde el equipo de los empleados? ¿Y viceversa?  
+Sí que se pueden ver, se hacen ping y de hecho , desde el equipo de empleados, si se pone la IP del server se puede acceder al pfSense
+## Configuración de las Reglas
+Configurar las reglas necesarias para:
+### El servidor tenga acceso a internet.
+Lo primero que tenemos que hacer es ir  a  Firewall->Rules, Después meternos en el DMZ que es nuestro server Ubuntu, añadimos la siguiente regla:
+En este caso es una acción pasiva, es no bloque ni deniega, el protocolo es el IPV4 Any, el source será el DMZ subnets y en la destination le he puesto a todos (any), también le he puesto una pequeña descripción .
+
+
+Con esto ya tendremos acceso a internet en el servidor DMZ:
+
+## Los empleados tengan acceso a internet.
+En este caso , por suerte mía en el firewall->rules, en el apartado LAN empleado , ya dispone de las reglas para conectarse a internet, las configuraciones son iguales al anterior ejemplo
+
+
+### El servidor web sea accesible únicamente por el puerto 443 y redirija el tráfico del 80 al 443.
+Para poder hacer este apartado tuve que cambiar de red.  Por lo cual, generar otro dhcp en mi pfSense
+
+Y desde la interfaz gráfica de pfsense en Interfaces->WAN, procedemos ha des clicar estas dos opciones
+
+Esto es un protocolo que se ha de implementar en la NAT
+
+
+Desde mi ordenador anfitrión, abriendo el buscador, probamos entrar en el server, aquí la prueba.
+
+El servidor SSH sea accesible únicamente desde el puerto que elegiste en el Sprint de Hardening SSH. 
+Esto es como el anterior ejercicio, nos dirigimos a Interface-> NAT, nos disponemos a clear una regla
+
+
+Bueno, con esta regla ya configurada, lo ponemos a prueba.
+
+### Una regla que no permita el tráfico directo entre el servidor y los empleados, y al revés. 
+Esto lo he realizado a traves de unas reglas en Firewall->Rules, hemos de  implantar las siguientes reglas
+En LAN
+
+Como se puede ver esta regla lo que hace es bloquear la LAN a Dnz por el protocolo IPV4 y6 any
+
+En la DMZ
+En este caso en ves de poner en el campo Protocol Any, le podemos poner ICMP.
+
+Es lo mismo que hicimos en la LAN pero esta vez de forma inversa en DMZ
+Ahora  probamos las conexiones
+LAM
+
+DMZ
+
+### Regla anti ciberataques
+Imagina que hemos sufrido un ciberataque en el servidor, y queremos bloquear el tráfico para que no nos exfiltren más información. Crea una regla que bloquee el tráfico. Comprueba que funciona. Deshabilita (no la borres), y comprueba que has recuperado el tráfico. La idea es tener una regla preparada y comprobada por si sucede el incidente, de manera que si sucede solo hay que habilitarla. 
+Esta regla se tiene que implementar en la DMZ , nuestro server ubuntu.
+
+Básicamente, lo que hace es bloquear el acceso al server ubuntu, desde cualquier sitio
+Ahora lo que procede es probarlo en ubuntu server
+
+Ahora procederemos deshabilitar esta regla
+
+Como puede mirar esto deshabilita la regla
+
+### Bloquear una ip en concreto
+Se han detectado un ciberataque desde una ip concreta (de un compañero, por ejemplo). Comprueba que tu compañero tiene acceso al servidor web, y que es capaz de hacer un ataque DOS. Una vez configurada la regla que bloquea el tráfico, comprueba que efectivamente es así y no puede acceder al servidor web.
+Bien, esta vez se ha de configurar una regla para el WAM, es decir, directamente que afecte al pfSense, el que da salida al exterior
+
+Como puede ver , he bloqueado el ping del ordenador que se quiere conectar, por lo cual, cuando se aplica la regla, este ordenador no podrá acceder a la pagina.
+
+Aquí la prueba
+
+### Regla propia (bloquear una página web)
+Con la situación actual, podríamos decir que tenemos nuestra infraestructura segura y funcional. Piensa en alguna regla que te gustaría añadir a la configuración actual y comprueba su funcionamiento.
+Bueno, yo considero que con las reglas actuales estaría bien como base, pero creo yo que podríamos implementar una regla para que, en el caso de que en el server DMZ, no pudiera acceder a la página softonic. 
+Lo primero que haríamos sería ir al firewall->Aliases, y crear un nuevo alias al softonic
+
+
+
+## Conclusión
+En este apartado se explicará un poco sobre mi experiencia durante esta actividad, por suerte, el pfSense no se me genero ningún tipo de problema en su instalación y configuración, lo que sí que tengo que decir es que el programa es un poco complicado de instalar y configurar, seguramente sea por el primer contacto, pero se dé muchos compañeros que se nos dificultó este proceso.
+Que puedo decir de pfSense, realmente es una herramienta muy útil como cortafuegos, me pareció realmente increíble como este servidor puede hacer tantas cosas, como a la hora de dar conexión a internet, denegar accesos externos, evitar que maquina dentro de la red interna no se puedan ver, etc.
+Es verdad que a la hora de configurar algunas reglas, se nos complicó por cosas que no estaban explicadas o cosas como que se tenía que desactivar ciertos campos para poder ejecutar la regla de forma correcta, por lo resto, es un programa relativamente fácil de utilizar.
+Una cosa sí que es cierta, algunos compañeros que disponemos de la misma configuración, hemos tenido resultados completamente diferentes, un ejemplo es en el apartado de darle conexión a internet a un equipo DMZ, pues algunos compañeros, a pesar de tener la misma regla que yo, no consiguieron el objetivo.
+
 
 # SPRINT 4
 
